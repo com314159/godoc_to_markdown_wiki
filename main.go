@@ -12,7 +12,6 @@ import (
 	"strings"
 	"os"
 	"runtime"
-	"path"
 )
 
 var tomlFile = flag.String("toml","","the toml file path")
@@ -36,7 +35,7 @@ func main()  {
 		}
 		
 		for _,d := range dirs {
-			filePath := strings.Replace(*tomlFile,"$GOPATH",path.Join(d,"src"),1)
+			filePath := strings.Replace(*tomlFile,"$GOPATH",d,1)
 			if _,err := os.Stat(filePath); err == nil {
 				*tomlFile = filePath
 				break
