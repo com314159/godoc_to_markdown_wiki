@@ -4,7 +4,7 @@
 
 Parameters:
 
-* `userid`(string) - 年级
+* `userid`(string)
 
 Return:
 
