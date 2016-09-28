@@ -6,15 +6,10 @@ wikiOutDir = ""
 
 [pages]
     [pages.user]
-    apifile = "github.com/com314159/godoc_to_markdown_wiki/example/user/user.go"
+    apifiles = ["github.com/com314159/godoc_to_markdown_wiki/example/user/user.go","github.com/com314159/godoc_to_markdown_wiki/example/user/message/message.go"]
     # array type
-    funcnames = ["GetUserInfo","ModifyUserInfo"]
-
-    [pages.userMessage]
-    apifile = "github.com/com314159/godoc_to_markdown_wiki/example/user/message/message.go"
-    # array type
-    funcnames = ["DeleteUserMessage"]
+    funcnames = ["GetUserInfo","ModifyUserInfo","DeleteUserMessage"]
 
     [pages.login]
-    apifile = "github.com/com314159/godoc_to_markdown_wiki/example/login/login.go"
+    apifiles = ["github.com/com314159/godoc_to_markdown_wiki/example/login/login.go"]
     funcnames = ["Login"]

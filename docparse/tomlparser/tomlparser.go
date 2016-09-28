@@ -10,7 +10,7 @@ import (
 )
 
 type WikiPage struct {
-	ApiFile string
+	ApiFiles []string
 	FuncNames []string
 	PageName string
 }
@@ -43,7 +43,7 @@ func ParseToml(tomlfile string) error {
 		key := "pages." + k + "."
 
 		page.PageName = k
-		page.ApiFile = viper.GetString(key + "apifile")
+		page.ApiFiles = viper.GetStringSlice(key + "apifiles")
 		page.FuncNames = viper.GetStringSlice(key + "funcnames")
 
 		Pages = append(Pages,page)

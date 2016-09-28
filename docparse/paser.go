@@ -28,21 +28,26 @@ func ParseToPackageName(pages []tomlparser.WikiPage ,packageDir string)  {
 	
 	
 	for _,page := range pages {
-		isFound := false
+		
+		files := []string{}
+		outFile := ""
+		
 		for _, d := range dirs {
-			goFile := path.Join(d,"src",page.ApiFile)
-			
-			if _,err := os.Stat(goFile); err == nil {
-				isFound = true
-				outFile := path.Join(d,"src",packageDir,page.PageName+".markdown")
-				parseFile(goFile,page.FuncNames,outFile)
+			for _, f := range page.ApiFiles {
+				goFile := path.Join(d,"src",f)
+				
+				if _,err := os.Stat(goFile); err == nil {
+					if outFile == "" {
+						outFile = path.Join(d,"src",packageDir,page.PageName+".markdown")
+					}
+					files = append(files,goFile)
+				}
 			}
 			
 		}
 		
-		if isFound == false {
-			fmt.Println("can't find file: ",page.ApiFile)
-		}
+		parseFile(files,page.FuncNames,outFile)
+		
 	}
 	
 }
@@ -60,13 +65,17 @@ func ParseToOutDir(pages []tomlparser.WikiPage, outDir string)  {
 	
 	for _, d := range dirs {
 		for _,page := range pages {
-			goFile := path.Join(d,"src",page.ApiFile)
-			
-			if _,err := os.Stat(goFile); err == nil {
-				outFile := path.Join(outDir,page.PageName+".markdown")
-				parseFile(goFile,page.FuncNames,outFile)
+			files := []string{}
+			outFile := path.Join(outDir,page.PageName+".markdown")
+			for _, f :=range page.ApiFiles {
+				goFile := path.Join(d,"src",f)
+				
+				if _,err := os.Stat(goFile); err == nil {
+					files = append(files,goFile)
+				}
 			}
 			
+			parseFile(files,page.FuncNames,outFile)
 		}
 	}
 	
@@ -74,40 +83,41 @@ func ParseToOutDir(pages []tomlparser.WikiPage, outDir string)  {
 
 
 
-func parseFile(goFile string, funcNames []string,outFile string)  {
+func parseFile(goFiles []string, funcNames []string,outFile string)  {
 	
-	fmt.Println("start parse: ",goFile)
+	fmt.Println("start parse: ",goFiles)
 	fmt.Println("start parse outfile: ",outFile)
-	
-	fileSet := token.NewFileSet()
-	fileTree, err := parser.ParseFile(fileSet,goFile,nil,parser.ParseComments)
-	
-	if err != nil {
-		fmt.Println("error",err)
-		return
-	}
-	
-	if fileTree.Decls == nil {
-		fmt.Println("decl is nil")
-		return
-	}
-	
-	
-		
 	var bytesBuffer bytes.Buffer
 	
-	for _, dec := range fileTree.Decls{
-		if fun,ok := dec.(*ast.FuncDecl);ok {
+	for _, goFile:= range goFiles {
 			
-			for _, funcName := range funcNames {
-				if funcName == fun.Name.Name {
-					bytesBuffer.WriteString(fun.Doc.Text())
-					bytesBuffer.WriteString("\n")
+		fileSet := token.NewFileSet()
+		fileTree, err := parser.ParseFile(fileSet,goFile,nil,parser.ParseComments)
+		
+		if err != nil {
+			fmt.Println("error",err)
+			return
+		}
+		
+		if fileTree.Decls == nil {
+			fmt.Println("decl is nil")
+			return
+		}
+		
+		for _, dec := range fileTree.Decls{
+			if fun,ok := dec.(*ast.FuncDecl);ok {
+				
+				for _, funcName := range funcNames {
+					if funcName == fun.Name.Name {
+						bytesBuffer.WriteString(fun.Doc.Text())
+						bytesBuffer.WriteString("\n")
+					}
 				}
+				
 			}
-			
 		}
 	}
+	
 	
 	if bytesBuffer.Len() == 0 {
 		fmt.Println("bytes is 0")
@@ -126,7 +136,7 @@ func parseFile(goFile string, funcNames []string,outFile string)  {
 	fmt.Println("parent dir ",parentDir)
 	fmt.Println("file ",outFile)
 	
-	err = os.MkdirAll(parentDir,0777)
+	err := os.MkdirAll(parentDir,0777)
 	if err != nil {
 		fmt.Println("can't create dir: ",err)
 		return
