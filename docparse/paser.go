@@ -34,7 +34,7 @@ func ParseToPackageName(pages []tomlparser.WikiPage ,packageDir string)  {
 		
 		for _, d := range dirs {
 			for _, f := range page.ApiFiles {
-				goFile := path.Join(d,"src",f)
+				goFile := path.Join(d,"src/",f)
 				
 				if _,err := os.Stat(goFile); err == nil {
 					if outFile == "" {
